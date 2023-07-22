@@ -1,0 +1,26 @@
+---
+  - name: install dev tools
+    become: true
+    pacman:
+      name:
+        - base-devel
+        - clang
+        - gcc
+        - htop
+        - libvirt
+        - neovim
+        - qemu-desktop
+        - rsync
+        - terminator
+      state: present
+
+  - name: install JetBrains mono font
+    become: true
+    unarchive:
+      src: "https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip"
+      dest: "/usr/share"
+      remote_src: yes
+      creates: /usr/share/fonts/ttf/JetBrainsMono-Bold.ttf
+    notify:
+      - rebuild font cache
+

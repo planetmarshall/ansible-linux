@@ -1,0 +1,25 @@
+---
+- name: copy bashrc
+  template:
+    src: bashrc
+    dest: /home/andrew/.bashrc
+    owner: andrew
+    mode: '0644'
+
+- name: create .ssh folder
+  file:
+    path: /home/andrew/.ssh
+    state: directory
+    owner: andrew
+    mode: '0700'
+
+- name: create an SSH key pair
+  openssh_keypair:
+    path: /home/andrew/.ssh/id_ed25519
+    owner: andrew
+    type: ed25519
+
+
+
+
+

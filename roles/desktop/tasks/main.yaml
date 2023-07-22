@@ -1,0 +1,41 @@
+---
+  - name: install desktop packages
+    become: true
+    pacman:
+      name:
+        - avahi
+        - cups
+        - cups-pdf
+        - gnome
+        - gnome-extra
+        - nss-mdns
+        - texlive
+      state: present
+
+  - name: enable gdm
+    become: true
+    service:
+      name: gdm
+      enabled: yes
+
+  - name: configure local hostname service
+    become: true
+    lineinfile:
+      path: /etc/nsswitch.conf
+      regex: '^hosts:'
+      line: 'hosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns'
+      state: present
+
+  - name: enable mdns service
+    become: true
+    service:
+      name: avahi-daemon
+      enabled: yes
+
+  - name: enable printing service
+    become: true
+    service:
+      name: cups
+      enabled: yes
+
+

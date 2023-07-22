@@ -1,0 +1,15 @@
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+complete -cf sudo
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias vim=nvim
+export EDITOR=nvim
+source ~/liquidprompt/liquidprompt
+

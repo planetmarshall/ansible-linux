@@ -1,0 +1,8 @@
+- name: apply configuration
+  hosts: localhost
+  roles:
+    - developer
+    - desktop
+    - nvidia
+    - home
+
