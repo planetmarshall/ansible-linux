@@ -24,3 +24,14 @@
     notify:
       - rebuild font cache
 
+  - name: add user to groups
+    user:
+      name: andrew
+      groups: libvirt
+      append: yes
+
+  - name: enable the libvirtd service
+    service:
+      name: libvirtd
+      enable: yes
+
