@@ -7,9 +7,11 @@
         - cups
         - cups-pdf
         - dosfstools
+        - exfat-progs
         - gnome
         - gnome-extra
         - nss-mdns
+        - ntfs-3g
         - texlive
       state: present
 
