@@ -6,6 +6,7 @@
         - avahi
         - cups
         - cups-pdf
+        - dosfstools
         - gnome
         - gnome-extra
         - nss-mdns
