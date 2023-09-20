@@ -21,6 +21,7 @@
     service:
       name: gdm
       enabled: yes
+      state: started
 
   - name: configure local hostname service
     become: true
@@ -35,9 +36,11 @@
     service:
       name: avahi-daemon
       enabled: yes
+      state: started
 
   - name: enable printing service
     become: true
     service:
       name: cups
       enabled: yes
+      status: started

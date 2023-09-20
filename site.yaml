@@ -1,8 +1,11 @@
 - name: apply configuration
   hosts: localhost
   roles:
+    - home
+    - role: bluetooth
+      tags:
+        bluetooth
     - developer
     - desktop
     - nvidia
-    - home
 

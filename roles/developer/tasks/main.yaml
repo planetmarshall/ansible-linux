@@ -3,6 +3,7 @@
     become: true
     pacman:
       name:
+        - base-devel
         - clang
         - gcc
         - htop
@@ -22,7 +23,6 @@
       creates: /usr/share/fonts/ttf/JetBrainsMono-Bold.ttf
     notify:
       - rebuild font cache
-
   - name: add user to groups
     user:
       name: '{{ user_name }}'
@@ -33,4 +33,3 @@
     service:
       name: libvirtd
       enable: yes
-

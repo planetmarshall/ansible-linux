@@ -2,6 +2,8 @@
 - name: create user
   user:
     name: '{{ user_name }}'
+    comment: '{{ full_name }}'
+    password: '{{ password }}'
     create_home: true
     skeleton: /etc/skel
     groups: wheel
@@ -27,3 +29,19 @@
     - { name: user.name, value: '{{ git_user_name }}' }
     - { name: user.email, value: '{{ user_email }}' }
 
+- name: install sudo package
+  become: true
+  pacman:
+    name:
+    - sudo
+    state: present
+
+- name: enable sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    search_string: '# %wheel ALL=(ALL:ALL) ALL'
+    line: '%wheel ALL=(ALL:ALL) ALL'
+    present: true
+    validate: visudo -cf %s
+  become: true

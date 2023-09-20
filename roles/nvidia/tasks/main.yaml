@@ -20,9 +20,29 @@
       src: nvidia.conf
       dest: /etc/modprobe.d/
 
+  - name: blacklist nouveau
+    become: true
+    copy:
+      src: blacklist_nouveau.conf
+      dest: /etc/modprobe.d/
+
   - name: install cuda packages
     become: true
     pacman:
       name:
         - cuda
       state: present
+
+  - name: enable nvidia-suspend service
+    become: true
+    service:
+      name: nvidia-suspend
+      enabled: true
+      state: started
+
+  - name: enable nvidia-resume service
+    become: true
+    service:
+      name: nvidia-resume
+      enabled: true
+      state: started
