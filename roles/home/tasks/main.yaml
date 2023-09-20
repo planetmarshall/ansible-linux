@@ -1,25 +1,29 @@
 ---
+- name: create user
+  user:
+    name: '{{ user_name }}'
+    create_home: true
+    skeleton: /etc/skel
+    groups: wheel
+    ssh_key_file: .ssh/id_ed25519
+    ssh_key_type: ed25519
+
 - name: copy bashrc
-  template:
+  copy:
     src: bashrc
-    dest: /home/andrew/.bashrc
-    owner: andrew
+    dest: /home/{{ user_name }}/.bashrc
+    owner: '{{ user_name }}'
     mode: '0644'
 
-- name: create .ssh folder
+- name: create projects folder
   file:
-    path: /home/andrew/.ssh
-    state: directory
-    owner: andrew
-    mode: '0700'
+    /home/{{ user_name }}/projects
 
-- name: create an SSH key pair
-  openssh_keypair:
-    path: /home/andrew/.ssh/id_ed25519
-    owner: andrew
-    type: ed25519
-
-
-
-
+- name: setup git config
+  git_config:
+    name: '{{ item.name }}'
+    value: '{{ item.value }}'
+  loop:
+    - { name: user.name, value: '{{ git_user_name }}' }
+    - { name: user.email, value: '{{ user_email }}' }
 

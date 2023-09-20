@@ -3,7 +3,6 @@
     become: true
     pacman:
       name:
-        - base-devel
         - clang
         - gcc
         - htop
@@ -26,7 +25,7 @@
 
   - name: add user to groups
     user:
-      name: andrew
+      name: '{{ user_name }}'
       groups: libvirt
       append: yes
 

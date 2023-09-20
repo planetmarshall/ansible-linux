@@ -10,6 +10,19 @@
     become: true
     pacman:
       name:
+        - linux-headers
         - nvidia-dkms
       state: present
 
+  - name: install nvidia module config
+    become: true
+    copy:
+      src: nvidia.conf
+      dest: /etc/modprobe.d/
+
+  - name: install cuda packages
+    become: true
+    pacman:
+      name:
+        - cuda
+      state: present

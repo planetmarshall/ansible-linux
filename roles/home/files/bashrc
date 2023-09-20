@@ -11,5 +11,5 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias vim=nvim
 export EDITOR=nvim
-source ~/liquidprompt/liquidprompt
+source ~/projects/liquidprompt/liquidprompt
 
