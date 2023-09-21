@@ -12,6 +12,7 @@
         - qemu-desktop
         - rsync
         - terminator
+        - zip
       state: present
 
   - name: install JetBrains mono font
@@ -23,6 +24,7 @@
       creates: /usr/share/fonts/ttf/JetBrainsMono-Bold.ttf
     notify:
       - rebuild font cache
+
   - name: add user to groups
     user:
       name: '{{ user_name }}'
@@ -32,4 +34,4 @@
   - name: enable the libvirtd service
     service:
       name: libvirtd
-      enable: yes
+      enabled: yes

@@ -1,11 +1,18 @@
 - name: apply configuration
   hosts: localhost
+  vars:
+    home: "/home/{{ user_name }}"
   roles:
-    - home
+    - role: base
+      tags: base
+    - role: home
+      tags: home
     - role: bluetooth
-      tags:
-        bluetooth
-    - developer
-    - desktop
+      tags: bluetooth
+    - role: developer
+      tags: developer
+    - role: desktop
+      tags: desktop
+
     - nvidia
 

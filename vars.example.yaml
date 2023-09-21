@@ -1,6 +1,6 @@
 ---
 user_name: andrew
 full_name: Andrew Marshall
-password: <mkpassword>
+password: "<mkpasswd>"
 git_user_name: planetmarshall
-user_email: <email>
+user_email: "<email>"

@@ -7,7 +7,8 @@
         - cups
         - cups-pdf
         - dosfstools
-        - exfat-progs
+        - exfat-utils
+        - firefox-developer-edition
         - gnome
         - gnome-extra
         - nss-mdns
@@ -21,13 +22,12 @@
     service:
       name: gdm
       enabled: yes
-      state: started
 
   - name: configure local hostname service
     become: true
     lineinfile:
       path: /etc/nsswitch.conf
-      regex: '^hosts:'
+      regex: '^hosts: .+'
       line: 'hosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns'
       state: present
 
@@ -36,11 +36,10 @@
     service:
       name: avahi-daemon
       enabled: yes
-      state: started
 
   - name: enable printing service
     become: true
     service:
       name: cups
       enabled: yes
-      status: started
+

@@ -13,13 +13,18 @@
 - name: copy bashrc
   copy:
     src: bashrc
-    dest: /home/{{ user_name }}/.bashrc
+    dest: '{{ home }}/.bashrc'
     owner: '{{ user_name }}'
-    mode: '0644'
+    group: '{{ user_name }}'
+    mode: '0640'
 
 - name: create projects folder
   file:
-    /home/{{ user_name }}/projects
+    path: /home/{{ user_name }}/projects
+    state: directory
+    owner: '{{ user_name }}'
+    group: '{{ user_name }}'
+    mode: '0750'
 
 - name: setup git config
   git_config:
@@ -28,6 +33,20 @@
   loop:
     - { name: user.name, value: '{{ git_user_name }}' }
     - { name: user.email, value: '{{ user_email }}' }
+
+- name: install liquidprompt
+  git:
+    repo: 'https://github.com/nojhan/liquidprompt.git'
+    version: stable
+    dest: '{{ home }}/.liquidprompt'
+
+- name: set ownership on liquidprompt
+  file:
+    path: '{{ home }}/.liquidprompt'
+    owner: '{{ user_name }}'
+    group: '{{ user_name }}'
+    state: directory
+    recurse: true
 
 - name: install sudo package
   become: true
@@ -42,6 +61,6 @@
     state: present
     search_string: '# %wheel ALL=(ALL:ALL) ALL'
     line: '%wheel ALL=(ALL:ALL) ALL'
-    present: true
+    state: present
     validate: visudo -cf %s
   become: true
