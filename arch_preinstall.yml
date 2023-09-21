@@ -1,0 +1,163 @@
+- name: arch-preinstall
+  hosts: localhost
+  vars:
+    device: nvme0n1
+    volume_group: MyVolGroup
+  tasks:
+    - name: set keyboard map
+      command: loadkeys uk
+
+    - name: update the system clock
+      command: timedatectl
+
+    - name: partition disks
+      tags: disks
+      block:
+      - name: get existing partition info
+        parted: device=/dev/{{ device }} unit=B
+        register: nvme_info
+
+      - name: get existing mounts
+        command: lsblk -o MOUNTPOINTS
+        register: mounts
+
+      - name: unmount volumes
+        mount:
+          path: "{{ item }}"
+          state: unmounted
+        when: item in mounts.stdout_lines
+        loop:
+          - /mnt/boot
+          - /mnt/home
+          - /mnt
+
+      - name: remove logical volume group
+        lvg:
+          pvs: /dev/mapper/cryptlvm
+          force: true
+          vg: "{{ volume_group }}"
+          state: absent
+
+      - name: remove existing partitions
+        parted:
+          device: '/dev/{{ device }}'
+          number: '{{ item.num }}'
+          state: absent
+        loop: '{{ nvme_info.partitions }}'
+
+      - name: remove LUKS container
+        luks_device:
+          device: "/dev/{{ device }}p2"
+          state: absent
+
+      - name: create boot partition
+        parted:
+          name: "EFI System Partition"
+          label: gpt
+          device: '/dev/{{ device }}'
+          flags:
+            - esp
+          fs_type: fat32
+          number: 1
+          part_start: 1MiB
+          part_end: 512MiB
+          state: present
+
+      - name: create root partition
+        parted:
+          name: "root"
+          label: gpt
+          device: '/dev/{{ device }}'
+          fs_type: ext4
+          number: 2
+          part_start: 512MiB
+          part_end: 100%
+          state: present
+
+      - name: get root partition info
+        parted: device=/dev/{{ device }} unit=B
+        register: nvme_info
+
+      - name: set root size
+        vars:
+          query: "partitions[?num==`2`].size | [0]"
+        set_fact:
+          root_size: "{{ nvme_info | community.general.json_query(query) }}"
+
+      - name: setup and open LUKS container
+        luks_device:
+          device: "/dev/{{ device }}p2"
+          name: cryptlvm
+          state: opened
+          passphrase: "Sh1nyMetalA$$"
+
+      - name: create logical volume group
+        lvg:
+          pvs: /dev/mapper/cryptlvm
+          vg: "{{ volume_group }}"
+
+      - name: create logical volumes
+        lvol:
+          vg: "{{ volume_group }}"
+          lv: "{{ item.name }}"
+          size: "{{ item.size }}"
+        loop:
+          - { name: swap, size: "16G" }
+          - { name: root, size: "{{ root_size | float / 2.0 }}B" }
+          - { name: home, size: "100%FREE" }
+
+      - name: format volumes
+        filesystem:
+          dev: "/dev/{{ item.name }}"
+          fstype: "{{ item.fstype }}"
+          opts: "{{ item.opts }}"
+        loop:
+          - { name: "{{ device }}p1", fstype: vfat, opts: "-F 32" }
+          - { name: "{{ volume_group }}/swap", fstype: swap, opts: "" }
+          - { name: "{{ volume_group }}/root", fstype: ext4, opts: "" }
+          - { name: "{{ volume_group }}/home", fstype: ext4, opts: "" }
+
+      - name: mount volumes
+        mount:
+          path: "/mnt/{{ item.mount }}"
+          src: "/dev/{{ item.device }}"
+          fstype: "{{ item.fstype }}"
+          state: ephemeral
+        loop:
+          - { device: "{{ volume_group }}/root", fstype: ext4, mount: "" }
+          - { device: "{{ volume_group }}/home", fstype: ext4, mount: "home" }
+          - { device: "{{ device }}p1", fstype: vfat, mount: "boot" }
+
+      - name: enable swap
+        command: "swapon /dev/{{ volume_group }}/swap"
+
+    - name: install essential packages
+      command: "pacstrap -K /mnt {{ packages | join(' ') }}"
+      vars:
+        packages:
+        - base
+        - git
+        - linux
+        - linux-firmware
+        - lvm2
+        - man
+        - networkmanager
+        - neovim
+        - python
+        - python-ansible
+
+    - name: generate fstab
+      command: genfstab -U /mnt
+      register: fstab_output
+
+    - name: write fstab
+      copy:
+        content: "{{ fstab_output.stdout }}"
+        dest: /mnt/etc/fstab
+
+
+
+
+
+
+

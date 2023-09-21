@@ -1,0 +1,94 @@
+- name: arch-chroot-preinstall
+  hosts: localhost
+  vars:
+  tasks:
+    - name: set the time zone
+      file:
+        path: /etc/localtime
+        src: /usr/share/zoneinfo/Europe/London
+        state: link
+
+    - name: run hwclock
+      command: 
+        cmd: hwclock --systohc
+        creates: /etc/adjtime
+
+    - name: prepare locales
+      lineinfile:
+        path: /etc/locale.gen
+        line: "{{ item }}"
+        search_string: "#{{ item }}"
+      loop:
+        - "LANG=en_US.UTF-8"
+        - "LANG=en_GB.UTF-8"
+
+    - name: generate locales
+      command: locale-gen
+
+    - name: create locale conf
+      copy:
+        content: "LANG=en_GB.UTF-8"
+        dest: /etc/locale.conf
+
+    - name: create console keymap conf
+      copy:
+        content: "uk"
+        dest: /etc/locale.conf
+
+    - name: create hostname conf
+      copy:
+        content: "andrew-desktop"
+        dest: /etc/hostname
+
+    - name: add mkinitcpio hooks
+      tags: initramfs
+      lineinfile: 
+        line: "HOOKS=({{ hooks | join(' ') }})"
+        regexp: '^HOOKS=\(.+\)'
+        path: /etc/mkinitcpio.conf
+      vars:
+        hooks:
+          - base
+          - udev
+          - autodetect
+          - modconf
+          - kms
+          - keyboard
+          - keymap
+          - consolefont
+          - block
+          - filesystems
+          - fsck
+          - lvm2
+          - encrypt
+
+    - name: generate initramfs
+      tags: initramfs
+      command: mkinitcpio -P
+
+    - name: install grub and microcode packages
+      pacman:
+        name: 
+          - efibootmgr
+          - grub
+          - intel-ucode
+
+    - name: install grub
+      command: grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+
+    - name: configure grub
+      lineinfile:
+        path: /etc/default/grub
+        regexp: "^GRUB_CMDLINE_LINUX=\".+\""
+        line: "GRUB_CMDLINE_LINUX=\"{{ params | join(' ') }}\""
+      vars:
+        device: nvme0n1
+        uuid: "{{ ansible_facts['devices'][device]['partitions'][device + 'p2']['uuid'] }}"
+        params:
+          - "cryptdevice=UUID={{ uuid }}:cryptlvm root=/dev/MyVolGroup/root"
+          - "nvidia.modeset=1"
+
+    - name: generate grub config
+      command: grub-mkconfig -o /boot/grub/grub.cfg
+
+
