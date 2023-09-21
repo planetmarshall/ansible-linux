@@ -12,6 +12,7 @@
         - htop
         - libvirt
         - neovim
+        - podman
         - qemu-desktop
         - rpcsvc-proto
         - rsync
