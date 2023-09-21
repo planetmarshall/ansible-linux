@@ -13,7 +13,8 @@
       become: true
       tags: developer
     - role: desktop
+      become: true
       tags: desktop
 
-    - nvidia
+    - role: nvidia
 

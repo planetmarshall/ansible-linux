@@ -1,6 +1,5 @@
 ---
   - name: install desktop packages
-    become: true
     pacman:
       name:
         - avahi
@@ -18,13 +17,11 @@
       state: present
 
   - name: enable gdm
-    become: true
     service:
       name: gdm
       enabled: yes
 
   - name: configure local hostname service
-    become: true
     lineinfile:
       path: /etc/nsswitch.conf
       regex: '^hosts: .+'
@@ -32,13 +29,11 @@
       state: present
 
   - name: enable mdns service
-    become: true
     service:
       name: avahi-daemon
       enabled: yes
 
   - name: enable printing service
-    become: true
     service:
       name: cups
       enabled: yes
