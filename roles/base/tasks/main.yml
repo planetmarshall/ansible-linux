@@ -3,11 +3,23 @@
   become: true
   pacman:
     name:
+    - git
     - inetutils
     - sudo
     - unzip
     - wget
+    update_cache: true
     state: present
+
+- name: get yay from git
+  git:
+    repo: https://aur.archlinux.org/yay.git
+    dest: /tmp/yay
+
+- name: install yay
+  command:
+    chdir: /tmp/yay
+    cmd: makepkg --clean --install --rmdeps --syncdeps --noconfirm
 
 - name: enable sudo
   lineinfile:
