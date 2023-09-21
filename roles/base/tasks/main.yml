@@ -3,15 +3,15 @@
   become: true
   pacman:
     name:
+    - inetutils
     - sudo
     - unzip
-    - inetutils
+    - wget
     state: present
 
 - name: enable sudo
   lineinfile:
     dest: /etc/sudoers
-    state: present
     search_string: '# %wheel ALL=(ALL:ALL) ALL'
     line: '%wheel ALL=(ALL:ALL) ALL'
     state: present

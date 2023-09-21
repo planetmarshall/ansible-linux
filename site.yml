@@ -10,6 +10,7 @@
     - role: bluetooth
       tags: bluetooth
     - role: developer
+      become: true
       tags: developer
     - role: desktop
       tags: desktop

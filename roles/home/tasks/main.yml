@@ -48,19 +48,3 @@
     state: directory
     recurse: true
 
-- name: install sudo package
-  become: true
-  pacman:
-    name:
-    - sudo
-    state: present
-
-- name: enable sudo
-  lineinfile:
-    dest: /etc/sudoers
-    state: present
-    search_string: '# %wheel ALL=(ALL:ALL) ALL'
-    line: '%wheel ALL=(ALL:ALL) ALL'
-    state: present
-    validate: visudo -cf %s
-  become: true
