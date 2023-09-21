@@ -11,5 +11,6 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias vim=nvim
 export EDITOR=nvim
-source ~/.liquidprompt/liquidprompt
+[[ -f /usr/share/bash-completion/bash-completion ]] && . /usr/share/bash-completion/bash_completion
+[[ -f ~/.liquidprompt/liquidprompt ]] && source ~/.liquidprompt/liquidprompt
 
