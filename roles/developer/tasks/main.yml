@@ -3,6 +3,7 @@
     pacman:
       name:
         - base-devel
+        - bash-completion
         - clang
         - cmake
         - chrpath

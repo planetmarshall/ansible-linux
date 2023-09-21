@@ -1,5 +1,6 @@
 ---
 - name: create user
+  tags: user
   user:
     name: '{{ user_name }}'
     comment: '{{ full_name }}'
@@ -7,6 +8,7 @@
     create_home: true
     skeleton: /etc/skel
     groups: wheel
+    generate_ssh_key: yes
     ssh_key_file: .ssh/id_ed25519
     ssh_key_type: ed25519
 
@@ -47,4 +49,7 @@
     group: '{{ user_name }}'
     state: directory
     recurse: true
+
+
+
 
