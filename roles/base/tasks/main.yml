@@ -29,3 +29,9 @@
     state: present
     validate: visudo -cf %s
   become: true
+
+- name: start paccache clear service
+  service:
+    name: paccache.timer
+    state: started
+    enabled: true
