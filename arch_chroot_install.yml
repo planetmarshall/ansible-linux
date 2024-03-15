@@ -49,18 +49,17 @@
       vars:
         hooks:
           - base
-          - udev
+          - systemd
+          - keyboard
           - autodetect
           - modconf
           - kms
-          - keyboard
-          - keymap
-          - consolefont
           - block
+          - sd-vconsole
+          - sd-encrypt
+          - lvm2
           - filesystems
           - fsck
-          - lvm2
-          - encrypt
 
     - name: generate initramfs
       tags: initramfs
@@ -85,7 +84,7 @@
         device: nvme0n1
         uuid: "{{ ansible_facts['devices'][device]['partitions'][device + 'p2']['uuid'] }}"
         params:
-          - "cryptdevice=UUID={{ uuid }}:cryptlvm root=/dev/MyVolGroup/root"
+          - "rd.luks.name={{ uuid }}=cryptlvm root=/dev/MyVolGroup/root"
           - "nvidia.modeset=1"
 
     - name: generate grub config
