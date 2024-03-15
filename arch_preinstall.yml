@@ -137,7 +137,8 @@
         packages:
         - base
         - git
-        - linux
+        - linux-lts
+        - linux-lts-headers
         - linux-firmware
         - lvm2
         - man

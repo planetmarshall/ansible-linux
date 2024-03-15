@@ -10,7 +10,7 @@
     become: true
     pacman:
       name:
-        - linux-headers
+        - linux-lts-headers
         - nvidia-dkms
       state: present
 
