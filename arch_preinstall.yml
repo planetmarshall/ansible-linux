@@ -89,7 +89,7 @@
           device: "/dev/{{ device }}p2"
           name: cryptlvm
           state: opened
-          passphrase: "***REMOVED***"
+          passphrase: "{{ luks_passphrase }}"
 
       - name: create logical volume group
         lvg:
@@ -155,10 +155,3 @@
       copy:
         content: "{{ fstab_output.stdout }}"
         dest: /mnt/etc/fstab
-
-
-
-
-
-
-
