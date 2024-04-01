@@ -6,7 +6,6 @@
         - cups
         - cups-pdf
         - dosfstools
-        - exfat-utils
         - firefox-developer-edition
         - gnome
         - gnome-extra
@@ -33,8 +32,39 @@
       name: avahi-daemon
       enabled: yes
 
-  - name: enable printing service
+  - name: enable .xmlprinting service
     service:
       name: cups
       enabled: yes
 
+  - name: create temporary directory
+    tempfile:
+      state: directory
+      suffix: ansible
+    register: tempdir
+
+  - name: set tempdir permissions
+    file:
+      path: "{{ tempdir.path }}"
+      mode: "0755"
+    register: tempdir
+
+  - name: download desktop backgrounds
+    get_url:
+      url: "{{ item.url }}"
+      dest: "{{ tempdir.path }}/{{ item.dest }}"
+      mode: "0644"
+    loop: "{{ wallpapers }}"
+
+  - name: process desktop backgrounds
+    shell: >
+      magick
+      "{{ tempdir.path }}/{{ item.dest }}"
+      -resize {{ item.width}}x 
+      "/usr/share/backgrounds/{{ item.dest | splitext | first }}.jpg"
+    loop: "{{ wallpapers }}"
+
+  - name: copy desktop backgrounds config
+    template:
+      src: wallpapers.xml.j2
+      dest: /usr/share/gnome-background-properties/wallpapers.xml
