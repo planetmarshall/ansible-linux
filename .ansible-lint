@@ -1,0 +1,7 @@
+---
+# .ansible-lint
+
+mock_modules:
+  - parted
+  - pacman
+  - git-config
