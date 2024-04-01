@@ -2,6 +2,11 @@
 # .ansible-lint
 
 mock_modules:
-  - parted
-  - pacman
-  - git-config
+  - community.crypto.luks_device
+  - community.general.filesystem
+  - community.general.lvg
+  - community.general.lvol
+  - community.general.git_config
+  - community.general.pacman
+  - community.general.parted
+  - ansible.posix.mount
