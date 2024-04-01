@@ -15,8 +15,5 @@
     - role: desktop
       become: true
       tags: desktop
-    - role: gaming
-      become: true
-      tags: gaming
 
     - role: nvidia
