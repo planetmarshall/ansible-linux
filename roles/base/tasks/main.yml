@@ -35,3 +35,10 @@
     name: paccache.timer
     state: started
     enabled: true
+
+- name: disable the terminal beep
+  become: true
+  copy:
+    src: disable_beep.conf
+    dest: /etc/profile.d
+
