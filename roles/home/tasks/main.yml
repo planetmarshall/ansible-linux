@@ -37,9 +37,11 @@
   community.general.git_config:
     name: '{{ item.name }}'
     value: '{{ item.value }}'
+    scope: global
   loop:
-    - { name: user.name, value: '{{ git_user_name }}' }
+    - { name: user.name, value: '{{ full_name }}' }
     - { name: user.email, value: '{{ user_email }}' }
+    - { name: init.defaultBranch, value: main }
 
 - name: Install liquidprompt
   git:
@@ -54,3 +56,9 @@
     group: '{{ user_name }}'
     state: directory
     recurse: true
+
+- name: Install neovim config
+  git:
+    repo: git@github.com:planetmarshall/nvim-config.git
+    dest: '{{ home }}/.config/nvim'
+    version: main
