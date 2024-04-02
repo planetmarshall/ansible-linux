@@ -5,6 +5,7 @@
     name:
     - git
     - inetutils
+    - pacman-contrib
     - pwgen
     - sudo
     - unzip
@@ -13,15 +14,16 @@
     state: present
 
 - name: enable sudo
+  become: true
   lineinfile:
     dest: /etc/sudoers
     search_string: '# %wheel ALL=(ALL:ALL) ALL'
     line: '%wheel ALL=(ALL:ALL) ALL'
     state: present
     validate: visudo -cf %s
-  become: true
 
 - name: start paccache clear service
+  become: true
   service:
     name: paccache.timer
     state: started

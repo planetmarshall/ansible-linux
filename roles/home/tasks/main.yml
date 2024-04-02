@@ -15,12 +15,12 @@
 
 - name: copy bashrc and friends
   copy:
-    src: {{ item }}
+    src: "{{ item }}"
     dest: '{{ home }}/.{{ item }}'
     owner: '{{ user_name }}'
     group: '{{ user_name }}'
     mode: '0640'
-  items:
+  loop:
     - bashrc
     - bash_profile
     - profile

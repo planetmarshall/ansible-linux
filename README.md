@@ -14,6 +14,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Create a variables file called `vars.yml` (see `vars.example.yml`) for an example
+for private data. This will not be checked into the repository
+
 ## Preinstallation
 
 Runs the [Preinstallation](https://wiki.archlinux.org/title/installation_guide#Pre-installation)
@@ -29,7 +32,7 @@ Run the installation steps after [chroot'ing](https://wiki.archlinux.org/title/i
 into the system
 
 ```
-ansible-playbook -K arch_chroot_install
+ansible-playbook -K arch_chroot_install --extra-vars "@vars.yml"
 ```
 
 ## Post Installation
@@ -37,7 +40,7 @@ ansible-playbook -K arch_chroot_install
 Run the main post installation steps
 
 ```
-ansible-playbook -K site.yml
+ansible-playbook -K site.yml --extra-vars "@vars.yml"
 ```
 
 To run a particular role, use the corresponding tag, for example
