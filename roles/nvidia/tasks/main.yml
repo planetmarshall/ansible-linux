@@ -1,48 +1,52 @@
 ---
-  - name: remove default nvidia driver
-    become: true
-    pacman:
-      name:
-        - nvidia
-      state: absent
+- name: Remove default nvidia driver
+  become: true
+  community.general.pacman:
+    name:
+      - nvidia
+    state: absent
 
-  - name: install nvidia dkms driver
-    become: true
-    pacman:
-      name:
-        - linux-lts-headers
-        - nvidia-dkms
-      state: present
+- name: Install nvidia dkms driver
+  become: true
+  community.general.pacman:
+    name:
+      - linux-lts-headers
+      - nvidia-dkms
+    state: present
 
-  - name: install nvidia module config
-    become: true
-    copy:
-      src: nvidia.conf
-      dest: /etc/modprobe.d/
+- name: Install nvidia module config
+  become: true
+  copy:
+    src: nvidia.conf
+    dest: /etc/modprobe.d/
+    owner: root
+    mode: '0644'
 
-  - name: blacklist nouveau
-    become: true
-    copy:
-      src: blacklist_nouveau.conf
-      dest: /etc/modprobe.d/
+- name: Blacklist nouveau
+  become: true
+  copy:
+    src: blacklist_nouveau.conf
+    dest: /etc/modprobe.d/
+    owner: root
+    mode: '0644'
 
-  - name: install cuda packages
-    become: true
-    pacman:
-      name:
-        - cuda
-      state: present
+- name: Install cuda packages
+  become: true
+  community.general.pacman:
+    name:
+      - cuda
+    state: present
 
-  - name: enable nvidia-suspend service
-    become: true
-    service:
-      name: nvidia-suspend
-      enabled: true
-      state: started
+- name: Enable nvidia-suspend service
+  become: true
+  service:
+    name: nvidia-suspend
+    enabled: true
+    state: started
 
-  - name: enable nvidia-resume service
-    become: true
-    service:
-      name: nvidia-resume
-      enabled: true
-      state: started
+- name: Enable nvidia-resume service
+  become: true
+  service:
+    name: nvidia-resume
+    enabled: true
+    state: started

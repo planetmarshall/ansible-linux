@@ -1,4 +1,4 @@
-- name: apply configuration
+- name: Apply configuration
   hosts: localhost
   vars:
     home: "/home/{{ user_name }}"

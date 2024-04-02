@@ -1,70 +1,73 @@
 ---
-  - name: install desktop packages
-    pacman:
-      name:
-        - avahi
-        - cups
-        - cups-pdf
-        - dosfstools
-        - firefox-developer-edition
-        - gnome
-        - gnome-extra
-        - nss-mdns
-        - ntfs-3g
-        - texlive
-        - wl-clipboard
-      state: present
+- name: Install desktop packages
+  community.general.pacman:
+    name:
+      - avahi
+      - cups
+      - cups-pdf
+      - dosfstools
+      - firefox-developer-edition
+      - gnome
+      - gnome-extra
+      - nss-mdns
+      - ntfs-3g
+      - texlive
+      - wl-clipboard
+    state: present
 
-  - name: enable gdm
-    service:
-      name: gdm
-      enabled: yes
+- name: Enable gdm
+  service:
+    name: gdm
+    enabled: true
 
-  - name: configure local hostname service
-    lineinfile:
-      path: /etc/nsswitch.conf
-      regex: '^hosts: .+'
-      line: 'hosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns'
-      state: present
+- name: Configure local hostname service
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regex: '^hosts: .+'
+    line: 'hosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns'
+    state: present
 
-  - name: enable mdns service
-    service:
-      name: avahi-daemon
-      enabled: yes
+- name: Enable mdns service
+  service:
+    name: avahi-daemon
+    enabled: true
 
-  - name: enable .xmlprinting service
-    service:
-      name: cups
-      enabled: yes
+- name: Enable .xmlprinting service
+  service:
+    name: cups
+    enabled: true
 
-  - name: create temporary directory
-    tempfile:
-      state: directory
-      suffix: ansible
-    register: tempdir
+- name: Create temporary directory
+  tempfile:
+    state: directory
+    suffix: ansible
+  register: tempdir
 
-  - name: set tempdir permissions
-    file:
-      path: "{{ tempdir.path }}"
-      mode: "0755"
-    register: tempdir
+- name: Set tempdir permissions
+  file:
+    path: "{{ tempdir.path }}"
+    mode: "0755"
+  register: tempdir
 
-  - name: download desktop backgrounds
-    get_url:
-      url: "{{ item.url }}"
-      dest: "{{ tempdir.path }}/{{ item.dest }}"
-      mode: "0644"
-    loop: "{{ wallpapers }}"
+- name: Download desktop backgrounds
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ tempdir.path }}/{{ item.dest }}"
+    mode: "0644"
+  loop: "{{ desktop_wallpapers }}"
 
-  - name: process desktop backgrounds
-    shell: >
-      magick
-      "{{ tempdir.path }}/{{ item.dest }}"
-      -resize {{ item.width}}x 
-      "/usr/share/backgrounds/{{ item.dest | splitext | first }}.jpg"
-    loop: "{{ wallpapers }}"
+- name: Process desktop backgrounds
+  command: >
+    magick
+    "{{ tempdir.path }}/{{ item.dest }}"
+    -resize {{ item.width }}x
+    "/usr/share/backgrounds/{{ item.dest | splitext | first }}.jpg"
+  loop: "{{ wallpapers }}"
+  changed_when: true
 
-  - name: copy desktop backgrounds config
-    template:
-      src: wallpapers.xml.j2
-      dest: /usr/share/gnome-background-properties/wallpapers.xml
+- name: Copy desktop backgrounds config
+  template:
+    src: wallpapers.xml.j2
+    dest: /usr/share/gnome-background-properties/wallpapers.xml
+    owner: root
+    mode: '0644'

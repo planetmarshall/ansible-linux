@@ -1,56 +1,57 @@
 ---
-  - name: install dev tools
-    pacman:
-      name:
-        - base-devel
-        - bash-completion
-        - clang
-        - cmake
-        - chrpath
-        - diffstat
-        - gcc
-        - htop
-        - libvirt
-        - neovim
-        - podman
-        - qemu-desktop
-        - rpcsvc-proto
-        - rsync
-        - terminator
-        - zip
-      state: present
+- name: Install dev tools
+  community.general.pacman:
+    name:
+      - base-devel
+      - bash-completion
+      - clang
+      - cmake
+      - chrpath
+      - diffstat
+      - gcc
+      - htop
+      - libvirt
+      - neovim
+      - podman
+      - qemu-desktop
+      - rpcsvc-proto
+      - rsync
+      - terminator
+      - zip
+    state: present
 
-  - name: download jetbrains toolbox
-    get_url:
-      url: "https://download.jetbrains.com/toolbox/jetbrains-toolbox-2.0.4.17212.tar.gz?_gl=1*157yqy1*_ga*MTIwNTEzODkzLjE2OTUyODcyNTU.*_ga_9J976DJZ68*MTY5NTI4NzI1NS4xLjEuMTY5NTI4NzM5NC4wLjAuMA..&_ga=2.165945467.454701195.1695287255-120513893.1695287255"
-      checksum: sha256:b25e27ac0b098f3babb0be4d6c73687d719fbc3b8a4c2b7354ce0587a40e297c
-      dest: /tmp
-    register: jb_download
+- name: Download jetbrains toolbox
+  get_url:
+    url: "https://download.jetbrains.com/toolbox/jetbrains-toolbox-2.0.4.17212.tar.gz?_gl=1*157yqy1*_ga*MTIwNTEzODkzLjE2OTUyODcyNTU.*_ga_9J976DJZ68*MTY5NTI4NzI1NS4xLjEuMTY5NTI4NzM5NC4wLjAuMA..&_ga=2.165945467.454701195.1695287255-120513893.1695287255"  # noqa yaml[line-length]
+    checksum: sha256:b25e27ac0b098f3babb0be4d6c73687d719fbc3b8a4c2b7354ce0587a40e297c
+    dest: /tmp
+    owner: root
+    mode: '0644'
+  register: jb_download
 
-  - name: install jetbrains toolbox
-    become: true
-    unarchive:
-      src: "{{ jb_download.dest }}"
-      dest: /opt
-      remote_src: true
+- name: Install jetbrains toolbox
+  become: true
+  unarchive:
+    src: "{{ jb_download.dest }}"
+    dest: /opt
+    remote_src: true
 
-  - name: install JetBrains mono font
-    unarchive:
-      src: "https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip"
-      dest: "/usr/share"
-      remote_src: yes
-      creates: /usr/share/fonts/ttf/JetBrainsMono-Bold.ttf
-    notify:
-      - rebuild font cache
+- name: Install JetBrains mono font
+  unarchive:
+    src: "https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip"
+    dest: "/usr/share"
+    remote_src: true
+    creates: /usr/share/fonts/ttf/JetBrainsMono-Bold.ttf
+  notify:
+    - rebuild font cache
 
-  - name: add user to groups
-    user:
-      name: '{{ user_name }}'
-      groups: libvirt
-      append: yes
+- name: Add user to groups
+  user:
+    name: '{{ user_name }}'
+    groups: libvirt
+    append: true
 
-  - name: enable the libvirtd service
-    service:
-      name: libvirtd
-      enabled: yes
-
+- name: Enable the libvirtd service
+  service:
+    name: libvirtd
+    enabled: true
