@@ -11,14 +11,19 @@
     generate_ssh_key: yes
     ssh_key_file: .ssh/id_ed25519
     ssh_key_type: ed25519
+    state: present
 
-- name: copy bashrc
+- name: copy bashrc and friends
   copy:
-    src: bashrc
-    dest: '{{ home }}/.bashrc'
+    src: {{ item }}
+    dest: '{{ home }}/.{{ item }}'
     owner: '{{ user_name }}'
     group: '{{ user_name }}'
     mode: '0640'
+  items:
+    - bashrc
+    - bash_profile
+    - profile
 
 - name: create projects folder
   file:
@@ -49,7 +54,3 @@
     group: '{{ user_name }}'
     state: directory
     recurse: true
-
-
-
-
