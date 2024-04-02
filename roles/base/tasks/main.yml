@@ -1,19 +1,19 @@
 ---
-- name: install base packages
+- name: Install base packages
   become: true
-  pacman:
+  community.general.pacman:
     name:
-    - git
-    - inetutils
-    - pacman-contrib
-    - pwgen
-    - sudo
-    - unzip
-    - wget
+      - git
+      - inetutils
+      - pacman-contrib
+      - pwgen
+      - sudo
+      - unzip
+      - wget
     update_cache: true
     state: present
 
-- name: enable sudo
+- name: Enable sudo
   become: true
   lineinfile:
     dest: /etc/sudoers
@@ -22,15 +22,17 @@
     state: present
     validate: visudo -cf %s
 
-- name: start paccache clear service
+- name: Start paccache clear service
   become: true
   service:
     name: paccache.timer
     state: started
     enabled: true
 
-- name: disable the terminal beep
+- name: Disable the terminal beep
   become: true
   copy:
     src: disable_beep.conf
     dest: /etc/profile.d
+    owner: root
+    mode: '0644'

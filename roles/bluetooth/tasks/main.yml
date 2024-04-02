@@ -1,16 +1,16 @@
 ---
-  - name: install bluetooth packages
-    become: true
-    pacman:
-      name:
-        - openssh
-        - bluez
-        - bluez-utils
-      state: present
+- name: Install bluetooth packages
+  become: true
+  community.general.pacman:
+    name:
+      - openssh
+      - bluez
+      - bluez-utils
+    state: present
 
-  - name: enable bluetooth service
-    become: true
-    service:
-      name: bluetooth
-      enabled: true
-      state: started
+- name: Enable bluetooth service
+  become: true
+  service:
+    name: bluetooth
+    enabled: true
+    state: started

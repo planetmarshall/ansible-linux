@@ -10,3 +10,7 @@ mock_modules:
   - community.general.pacman
   - community.general.parted
   - ansible.posix.mount
+
+skip_list:
+  - fqcn[action-core]
+  - args[module]

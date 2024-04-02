@@ -1,5 +1,5 @@
 ---
-- name: create user
+- name: Create user
   tags: user
   user:
     name: '{{ user_name }}'
@@ -8,12 +8,12 @@
     create_home: true
     skeleton: /etc/skel
     groups: wheel
-    generate_ssh_key: yes
+    generate_ssh_key: true
     ssh_key_file: .ssh/id_ed25519
     ssh_key_type: ed25519
     state: present
 
-- name: copy bashrc and friends
+- name: Copy bashrc and friends
   copy:
     src: "{{ item }}"
     dest: '{{ home }}/.{{ item }}'
@@ -25,7 +25,7 @@
     - bash_profile
     - profile
 
-- name: create projects folder
+- name: Create projects folder
   file:
     path: /home/{{ user_name }}/projects
     state: directory
@@ -33,21 +33,21 @@
     group: '{{ user_name }}'
     mode: '0750'
 
-- name: setup git config
-  git_config:
+- name: Setup git config
+  community.general.git_config:
     name: '{{ item.name }}'
     value: '{{ item.value }}'
   loop:
     - { name: user.name, value: '{{ git_user_name }}' }
     - { name: user.email, value: '{{ user_email }}' }
 
-- name: install liquidprompt
+- name: Install liquidprompt
   git:
     repo: 'https://github.com/nojhan/liquidprompt.git'
     version: stable
     dest: '{{ home }}/.liquidprompt'
 
-- name: set ownership on liquidprompt
+- name: Set ownership on liquidprompt
   file:
     path: '{{ home }}/.liquidprompt'
     owner: '{{ user_name }}'

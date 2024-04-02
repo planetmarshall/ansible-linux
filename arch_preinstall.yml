@@ -1,157 +1,170 @@
-- name: arch-preinstall
+- name: Arch-preinstall
   hosts: localhost
   vars:
     device: nvme0n1
     volume_group: MyVolGroup
   tasks:
-    - name: set keyboard map
+    - name: Set keyboard map
       command: loadkeys uk
+      changed_when: true
 
-    - name: update the system clock
+    - name: Update the system clock
       command: timedatectl
+      changed_when: true
 
-    - name: partition disks
+    - name: Partition disks
       tags: disks
       block:
-      - name: get existing partition info
-        parted: device=/dev/{{ device }} unit=B
-        register: nvme_info
+        - name: Get existing partition info
+          community.general.parted:
+            device: /dev/{{ device }}
+            unit: B
+          register: nvme_info
 
-      - name: get existing mounts
-        command: lsblk -o MOUNTPOINTS
-        register: mounts
+        - name: Get existing mounts
+          command: lsblk -o MOUNTPOINTS
+          register: mounts
+          changed_when: true
 
-      - name: unmount volumes
-        mount:
-          path: "{{ item }}"
-          state: unmounted
-        when: item in mounts.stdout_lines
-        loop:
-          - /mnt/boot
-          - /mnt/home
-          - /mnt
+        - name: Unmount volumes
+          ansible.posix.mount:
+            path: "{{ item }}"
+            state: unmounted
+          when: item in mounts.stdout_lines
+          loop:
+            - /mnt/boot
+            - /mnt/home
+            - /mnt
 
-      - name: remove logical volume group
-        lvg:
-          pvs: /dev/mapper/cryptlvm
-          force: true
-          vg: "{{ volume_group }}"
-          state: absent
+        - name: Remove logical volume group
+          community.general.lvg:
+            pvs: /dev/mapper/cryptlvm
+            force: true
+            vg: "{{ volume_group }}"
+            state: absent
 
-      - name: remove existing partitions
-        parted:
-          device: '/dev/{{ device }}'
-          number: '{{ item.num }}'
-          state: absent
-        loop: '{{ nvme_info.partitions }}'
+        - name: Remove existing partitions
+          community.general.parted:
+            device: '/dev/{{ device }}'
+            number: '{{ item.num }}'
+            state: absent
+          loop: '{{ nvme_info.partitions }}'
 
-      - name: remove LUKS container
-        luks_device:
-          device: "/dev/{{ device }}p2"
-          state: absent
+        - name: Remove LUKS container
+          community.crypto.luks_device:
+            device: "/dev/{{ device }}p2"
+            state: absent
 
-      - name: create boot partition
-        parted:
-          name: "EFI System Partition"
-          label: gpt
-          device: '/dev/{{ device }}'
-          flags:
-            - esp
-          fs_type: fat32
-          number: 1
-          part_start: 1MiB
-          part_end: 512MiB
-          state: present
+        - name: Create boot partition
+          community.general.parted:
+            name: "EFI System Partition"
+            label: gpt
+            device: '/dev/{{ device }}'
+            flags:
+              - esp
+            fs_type: fat32
+            number: 1
+            part_start: 1MiB
+            part_end: 512MiB
+            state: present
 
-      - name: create root partition
-        parted:
-          name: "root"
-          label: gpt
-          device: '/dev/{{ device }}'
-          fs_type: ext4
-          number: 2
-          part_start: 512MiB
-          part_end: 100%
-          state: present
+        - name: Create root partition
+          community.general.parted:
+            name: "root"
+            label: gpt
+            device: '/dev/{{ device }}'
+            fs_type: ext4
+            number: 2
+            part_start: 512MiB
+            part_end: 100%
+            state: present
 
-      - name: get root partition info
-        parted: device=/dev/{{ device }} unit=B
-        register: nvme_info
+        - name: Get root partition info
+          community.general.parted:
+            device: /dev/{{ device }}
+            unit: B
+          register: nvme_info
 
-      - name: set root size
-        vars:
-          query: "partitions[?num==`2`].size | [0]"
-        set_fact:
-          root_size: "{{ nvme_info | community.general.json_query(query) }}"
+        - name: Set root size
+          vars:
+            query: "partitions[?num==`2`].size | [0]"
+          set_fact:
+            root_size: "{{ nvme_info | community.general.json_query(query) }}"
 
-      - name: setup and open LUKS container
-        luks_device:
-          device: "/dev/{{ device }}p2"
-          name: cryptlvm
-          state: opened
-          passphrase: "{{ luks_passphrase }}"
+        - name: Setup and open LUKS container
+          community.crypto.luks_device:
+            device: "/dev/{{ device }}p2"
+            name: cryptlvm
+            state: opened
+            passphrase: "{{ luks_passphrase }}"
 
-      - name: create logical volume group
-        lvg:
-          pvs: /dev/mapper/cryptlvm
-          vg: "{{ volume_group }}"
+        - name: Create logical volume group
+          community.general.lvg:
+            pvs: /dev/mapper/cryptlvm
+            vg: "{{ volume_group }}"
 
-      - name: create logical volumes
-        lvol:
-          vg: "{{ volume_group }}"
-          lv: "{{ item.name }}"
-          size: "{{ item.size }}"
-        loop:
-          - { name: swap, size: "16G" }
-          - { name: root, size: "{{ root_size | float / 2.0 }}B" }
-          - { name: home, size: "100%FREE" }
+        - name: Create logical volumes
+          community.general.lvol:
+            vg: "{{ volume_group }}"
+            lv: "{{ item.name }}"
+            size: "{{ item.size }}"
+          loop:
+            - { name: swap, size: "16G" }
+            - { name: root, size: "{{ root_size | float / 2.0 }}B" }
+            - { name: home, size: "100%FREE" }
 
-      - name: format volumes
-        filesystem:
-          dev: "/dev/{{ item.name }}"
-          fstype: "{{ item.fstype }}"
-          opts: "{{ item.opts }}"
-        loop:
-          - { name: "{{ device }}p1", fstype: vfat, opts: "-F 32" }
-          - { name: "{{ volume_group }}/swap", fstype: swap, opts: "" }
-          - { name: "{{ volume_group }}/root", fstype: ext4, opts: "" }
-          - { name: "{{ volume_group }}/home", fstype: ext4, opts: "" }
+        - name: Format volumes
+          community.general.filesystem:
+            dev: "/dev/{{ item.name }}"
+            fstype: "{{ item.fstype }}"
+            opts: "{{ item.opts }}"
+          loop:
+            - { name: "{{ device }}p1", fstype: vfat, opts: "-F 32" }
+            - { name: "{{ volume_group }}/swap", fstype: swap, opts: "" }
+            - { name: "{{ volume_group }}/root", fstype: ext4, opts: "" }
+            - { name: "{{ volume_group }}/home", fstype: ext4, opts: "" }
 
-      - name: mount volumes
-        mount:
-          path: "/mnt/{{ item.mount }}"
-          src: "/dev/{{ item.device }}"
-          fstype: "{{ item.fstype }}"
-          state: ephemeral
-        loop:
-          - { device: "{{ volume_group }}/root", fstype: ext4, mount: "" }
-          - { device: "{{ volume_group }}/home", fstype: ext4, mount: "home" }
-          - { device: "{{ device }}p1", fstype: vfat, mount: "boot" }
+        - name: Mount volumes
+          ansible.posix.mount:
+            path: "/mnt/{{ item.mount }}"
+            src: "/dev/{{ item.device }}"
+            fstype: "{{ item.fstype }}"
+            state: ephemeral
+          loop:
+            - { device: "{{ volume_group }}/root", fstype: ext4, mount: "" }
+            - { device: "{{ volume_group }}/home", fstype: ext4, mount: "home" }
+            - { device: "{{ device }}p1", fstype: vfat, mount: "boot" }
 
-      - name: enable swap
-        command: "swapon /dev/{{ volume_group }}/swap"
+        - name: Enable swap
+          command: "swapon /dev/{{ volume_group }}/swap"
+          register: swapon_output
+          changed_when: swapon_output.rc == 0
 
-    - name: install essential packages
+    - name: Install essential packages
       command: "pacstrap -K /mnt {{ packages | join(' ') }}"
       vars:
         packages:
-        - base
-        - git
-        - linux-lts
-        - linux-lts-headers
-        - linux-firmware
-        - lvm2
-        - man
-        - networkmanager
-        - neovim
-        - python
-        - python-ansible
+          - base
+          - git
+          - linux-lts
+          - linux-lts-headers
+          - linux-firmware
+          - lvm2
+          - man
+          - networkmanager
+          - neovim
+          - python
+          - python-ansible
+      changed_when: true
 
-    - name: generate fstab
+    - name: Generate fstab
       command: genfstab -U /mnt
       register: fstab_output
+      changed_when: true
 
-    - name: write fstab
+    - name: Write fstab
       copy:
         content: "{{ fstab_output.stdout }}"
         dest: /mnt/etc/fstab
+        owner: root
+        mode: '0644'
