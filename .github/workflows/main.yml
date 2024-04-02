@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   lint:
+    name: static-analysis
 
     runs-on: ubuntu-latest
 
