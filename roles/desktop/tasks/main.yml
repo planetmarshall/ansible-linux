@@ -62,7 +62,7 @@
     "{{ tempdir.path }}/{{ item.dest }}"
     -resize {{ item.width }}x
     "/usr/share/backgrounds/{{ item.dest | splitext | first }}.jpg"
-  loop: "{{ wallpapers }}"
+  loop: "{{ desktop_wallpapers }}"
   changed_when: true
 
 - name: Copy desktop backgrounds config
@@ -71,3 +71,9 @@
     dest: /usr/share/gnome-background-properties/wallpapers.xml
     owner: root
     mode: '0644'
+
+- name: Install microsoft fonts
+  become: false
+  import_tasks: aur.yml
+  vars:
+    aur_repository: "https://aur.archlinux.org/ttf-segoe-ui-variable"

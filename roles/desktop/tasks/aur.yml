@@ -1,0 +1,17 @@
+- name: Download AUR repo to temp directory
+  tempfile:
+    state: directory
+    suffix: aur
+  register: temp_aur
+
+- name: Download AUR repo to temp directory  # noqa latest[git]
+  git:
+    repo: "{{ aur_repository }}"
+    dest: "{{ temp_aur.path }}"
+
+- name: Install AUR package
+  command:
+    cmd: makepkg --clean --install --rmdeps --syncdeps --noconfirm
+    chdir: "{{ temp_aur.path }}"
+  register: makepkg_out
+  changed_when: makepkg_out.rc != 0
