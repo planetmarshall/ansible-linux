@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
 <wallpapers>
-{% for wallpaper in wallpapers -%}
+{% for wallpaper in desktop_wallpapers -%}
   <wallpaper deleted="false">
     <name>{{ wallpaper.name }}</name>
       <filename>/usr/share/backgrounds/{{ wallpaper.dest }}</filename>
