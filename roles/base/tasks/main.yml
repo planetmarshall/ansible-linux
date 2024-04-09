@@ -5,6 +5,7 @@
     name:
       - git
       - inetutils
+      - man-pages
       - pacman-contrib
       - pwgen
       - reflector
