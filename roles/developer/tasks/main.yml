@@ -5,11 +5,13 @@
       - base-devel
       - bash-completion
       - clang
+      - ccache
       - cmake
       - chrpath
       - diffstat
       - gcc
       - htop
+      - lld
       - libvirt
       - neovim
       - podman
