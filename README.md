@@ -23,7 +23,7 @@ Runs the [Preinstallation](https://wiki.archlinux.org/title/installation_guide#P
 steps as far as and including mounting the filesystems
 
 ```
-ansible-playbook -K arch_preinstall
+ansible-playbook -K arch_preinstall.yml --extra-vars "@vars.yml"
 ```
 
 ## Chroot and Configuration
@@ -32,7 +32,7 @@ Run the installation steps after [chroot'ing](https://wiki.archlinux.org/title/i
 into the system
 
 ```
-ansible-playbook -K arch_chroot_install --extra-vars "@vars.yml"
+ansible-playbook -K arch_chroot_install.yml --extra-vars "@vars.yml"
 ```
 
 ## Post Installation

@@ -77,3 +77,14 @@
   import_tasks: aur.yml
   vars:
     aur_repository: "https://aur.archlinux.org/ttf-segoe-ui-variable"
+
+- name: Install autofs
+  become: true
+  import_tasks: aur.yml
+  vars:
+    aur_repository: "https://aur.archlinux.org/autofs.git"
+
+- name: Enable autofs service
+  service:
+    name: autofs
+    enabled: true
