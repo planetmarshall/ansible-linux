@@ -54,7 +54,8 @@
           community.crypto.luks_device:
             device: "/dev/{{ device }}p2"
             state: absent
-          ignore_errors: true
+          register: command_result
+          failed_when: "'FAILED' in command_result.stderr"
 
         - name: Create boot partition
           community.general.parted:
