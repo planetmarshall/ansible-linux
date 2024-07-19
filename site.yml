@@ -1,5 +1,5 @@
 - name: Apply configuration
-  hosts: localhost
+  hosts: system
   vars:
     home: "/home/{{ user_name }}"
   roles:

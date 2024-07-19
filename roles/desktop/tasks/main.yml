@@ -5,6 +5,7 @@
       - avahi
       - cups
       - cups-pdf
+      - darktable
       - dosfstools
       - firefox-developer-edition
       - gnome

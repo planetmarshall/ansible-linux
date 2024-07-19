@@ -11,7 +11,7 @@
   community.general.pacman:
     name:
       - linux-lts-headers
-      - nvidia-dkms
+      - nvidia-open-dkms
     state: present
 
 - name: Install nvidia module config

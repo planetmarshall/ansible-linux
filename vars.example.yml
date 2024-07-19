@@ -4,4 +4,4 @@ full_name: Andrew Marshall
 password: "<mkpasswd>"
 git_user_name: planetmarshall
 user_email: "<email>"
-luks_passphrase: "<mkpassword>"
+luks_passphrase: "<cleartext passphrase>"

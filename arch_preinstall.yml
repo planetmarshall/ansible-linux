@@ -1,5 +1,6 @@
 - name: Arch-preinstall
-  hosts: localhost
+  hosts: system
+  remote_user: root
   vars:
     device: nvme0n1
     volume_group: MyVolGroup
@@ -43,19 +44,17 @@
             vg: "{{ volume_group }}"
             state: absent
 
+        - name: Remove LUKS container
+          community.crypto.luks_device:
+            name: cryptlvm
+            state: absent
+
         - name: Remove existing partitions
           community.general.parted:
             device: '/dev/{{ device }}'
             number: '{{ item.num }}'
             state: absent
           loop: '{{ nvme_info.partitions }}'
-
-        - name: Remove LUKS container
-          community.crypto.luks_device:
-            device: "/dev/{{ device }}p2"
-            state: absent
-          register: command_result
-          failed_when: "'FAILED' in command_result.stderr"
 
         - name: Create boot partition
           community.general.parted:
@@ -99,6 +98,7 @@
             name: cryptlvm
             state: opened
             passphrase: "{{ luks_passphrase }}"
+            keyslot: 0
 
         - name: Create logical volume group
           community.general.lvg:
@@ -112,7 +112,7 @@
             size: "{{ item.size }}"
           loop:
             - { name: swap, size: "16G" }
-            - { name: root, size: "{{ root_size | float / 2.0 }}B" }
+            - { name: root, size: "{{ root_size | float / 4.0 }}B" }
             - { name: home, size: "100%FREE" }
 
         - name: Format volumes
