@@ -35,6 +35,7 @@
   community.general.pacman:
     name:
       - cuda
+      - nvidia-container-toolkit
     state: present
 
 - name: Enable nvidia-suspend service
