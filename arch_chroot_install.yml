@@ -61,9 +61,12 @@
           - systemd
           - keyboard
           - autodetect
+          - iwd
           - modconf
           - kms
           - block
+          - networkmanager
+          - openssh
           - sd-vconsole
           - sd-encrypt
           - lvm2

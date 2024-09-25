@@ -1,5 +1,5 @@
 ---
-- name: Rebuild font cache
+- name: rebuild font cache
   become: true
   command: fc-cache -f -v
   changed_when: true

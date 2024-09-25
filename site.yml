@@ -1,5 +1,6 @@
 - name: Apply configuration
   hosts: system
+  remote_user: root
   vars:
     home: "/home/{{ user_name }}"
   roles:
@@ -13,7 +14,10 @@
       become: true
       tags: developer
     - role: desktop
+      remote_user: andrew
       become: true
       tags: desktop
 
     - role: nvidia
+      remote_user: andrew
+      tags: nvidia

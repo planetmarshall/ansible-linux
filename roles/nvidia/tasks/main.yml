@@ -10,7 +10,7 @@
   become: true
   community.general.pacman:
     name:
-      - linux-lts-headers
+      - linux-headers
       - nvidia-open-dkms
     state: present
 

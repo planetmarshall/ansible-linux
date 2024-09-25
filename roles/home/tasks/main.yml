@@ -59,6 +59,6 @@
 
 - name: Install neovim config
   git:
-    repo: git@github.com:planetmarshall/nvim-config.git
+    repo: https://github.com/planetmarshall/nvim-config.git
     dest: '{{ home }}/.config/nvim'
     version: main

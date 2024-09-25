@@ -3,9 +3,11 @@
   become: true
   community.general.pacman:
     name:
+      - bc
       - git
       - inetutils
       - man-pages
+      - nfs-utils
       - pacman-contrib
       - pwgen
       - reflector
@@ -28,13 +30,6 @@
   become: true
   service:
     name: paccache.timer
-    state: started
-    enabled: true
-
-- name: Start the reflector service
-  become: true
-  service:
-    name: reflector
     state: started
     enabled: true
 
